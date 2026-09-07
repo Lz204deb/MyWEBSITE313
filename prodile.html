@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh‑CN">
+<head>
+<meta charset="UTF‑8">
+<meta name="viewport" content="width=device‑width, initial‑scale=1.0">
+<title>编辑个人资料</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system‑ui}
+body{background:#12121a;color:#eee;padding:24px;max‑width:600px;margin:0 auto}
+.back{color:#60a5fa;text‑decoration:none;margin‑bottom:16px;display:inline‑block}
+form{display:grid;gap:12px}
+input,textarea{padding:10px;background:#1e1e2f;border:1px solid #333;color:#eee;border‑radius:6px}
+button{padding:12px;background:#2563eb;color:white;border:none;border‑radius:6px;font‑size:1rem}
+</style>
+</head>
+<body>
+<a class="back" href="index.html">← 返回导航</a>
+<h2>👤 修改你的资料（输入游戏账号匹配）</h2>
+<form id="f">
+<label>游戏账号（用来找到你）</label>
+<input name="searchName" placeholder="输入你的游戏账号">
+<label>头像URL</label>
+<input name="avatar" placeholder="图片链接">
+<label>个人简介</label>
+<textarea name="desc"></textarea>
+<button type="submit">保存修改</button>
+</form>
+<script>
+const API_GET = "https://rank-api.653476937.workers.dev/api/getAll";
+const API_SAVE = "https://rank-api.653476937.workers.dev/api/save";
+document.getElementById("f").onsubmit = async e=>{
+e.preventDefault();
+const fd = new FormData(e.target);
+const searchName = fd.get("searchName").trim();
+const newAvatar = fd.get("avatar").trim();
+const newDesc = fd.get("desc").trim();
+if(!searchName){alert("填写游戏账号");return;}
+const res = await fetch(API_GET);
+const arr = await res.json();
+const idx = arr.findIndex(x=>x.name===searchName);
+if(idx===-1){alert("找不到该账号，请联系管理员录入");return;}
+arr[idx].avatar = newAvatar;
+arr[idx].desc = newDesc;
+await fetch(API_SAVE,{method:"POST",headers:{"Content‑Type":"application/json"},body:JSON.stringify(arr)});
+alert("✅保存成功！回到排行榜刷新查看");
+}
+</script>
+</body>
+</html>
