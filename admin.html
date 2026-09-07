@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh‑CN">
+<head>
+<meta charset="UTF‑8">
+<meta name="viewport" content="width=device‑width, initial‑scale=1.0">
+<title>管理员后台</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system‑ui}
+body{background:#12121a;color:#eee;padding:24px;max‑width:700px;margin:0 auto}
+.back{color:#60a5fa;text‑decoration:none;margin‑bottom:16px;display:inline‑block}
+#passBox{display:flex;gap:10px;margin‑bottom:20px}
+#passBox input{flex‑1;padding:10px;background:#1e1e2f;border:1px solid #444;color:white;border‑radius:6px}
+#passBox button{padding:10px;background:#dc2626;color:white;border:none;border‑radius:6px}
+#panel{display:none}
+form{display:grid;gap:10px;margin‑bottom:24px}
+input{padding:10px;background:#1e1e2f;border:1px solid #333;color:#eee;border‑radius:6px}
+button{padding:10px;background:#2563eb;color:white;border:none;border‑radius:6px}
+</style>
+</head>
+<body>
+<a class="back" href="index.html">← 返回导航</a>
+<div id="passBox">
+<input id="pwInput" placeholder="输入管理员密码">
+<button onclick="checkPw()">验证</button>
+</div>
+
+<div id="panel">
+<h3>🔐管理员录入选手</h3>
+<form id="addForm">
+<input name="name" placeholder="游戏账号" required>
+<input name="avatar" placeholder="头像URL">
+<input name="desc" placeholder="简介">
+<input name="kill" placeholder="kill" type="number" required>
+<input name="death" placeholder="death" type="number" required>
+<input name="star" placeholder="段位分（星）" type="number" required>
+<button type="submit">添加选手</button>
+</form>
+</div>
+
+<script>
+const ADMIN_PW = "BIHZPLADMIN";
+const API_GET = "https://rank-api.653476937.workers.dev/api/getAll";
+const API_SAVE = "https://rank-api.653476937.workers.dev/api/save";
+window.checkPw = function(){
+const pw = document.getElementById("pwInput").value.trim();
+if(pw === ADMIN_PW){
+document.getElementById("panel").style.display="block";
+}else alert("密码错误");
+}
+
+document.getElementById("addForm").onsubmit = async e=>{
+e.preventDefault();
+const fd = new FormData(e.target);
+const res = await fetch(API_GET);
+const arr = await res.json();
+arr.push({
+name:fd.get("name").trim(),
+avatar:fd.get("avatar").trim(),
+desc:fd.get("desc").trim(),
+kill:Number(fd.get("kill")),
+death:Number(fd.get("death")),
+star:Number(fd.get("star"))
+});
+await fetch(API_SAVE,{method:"POST",headers:{"Content‑Type":"application/json"},body:JSON.stringify(arr)});
+alert("✅添加成功，刷新排行榜");
+e.target.reset();
+}
+</script>
+</body>
+</html>
